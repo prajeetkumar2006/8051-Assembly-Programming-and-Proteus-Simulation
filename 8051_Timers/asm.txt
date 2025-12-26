@@ -1,0 +1,26 @@
+ORG 0H
+
+MAIN:
+    ; Infinite loop
+    MOV P2, #01H      ; Turn on RED
+    ACALL DELAY_250MS
+    MOV P2, #02H      ; Turn on GREEN
+    ACALL DELAY_250MS
+    MOV P2, #04H      ; Turn on BLUE
+    ACALL DELAY_250MS
+    SJMP MAIN         ; Repeat forever
+
+DELAY_250MS:
+    MOV R2, #250      ; 250 iterations = 250ms
+DLY_LOOP:
+    MOV TMOD, #01H    ; Timer0 in mode 1 (16-bit)
+    MOV TH0, #0FCH    ; High byte for 64535
+    MOV TL0, #17H     ; Low byte for 64535
+    SETB TR0          ; Start Timer0
+
+WAIT_TF0:
+    JNB TF0, WAIT_TF0 ; Wait for overflow
+    CLR TR0           ; Stop Timer0
+    CLR TF0           ; Clear overflow flag
+    DJNZ R2, DLY_LOOP ; Decrement loop counter
+    RET
